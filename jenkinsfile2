@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clean mon projet') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('CheckOut SCM') {
+            steps {
+                git branch: 'main', credentialsId: 'root', url: 'https://github.com/AjinthAT/b3depotgithub.git'
+            }
+        }
+
+        stage('Install Docker.io') {
+            steps {
+                sh 'sudo apt autoremove docker.io docker-compose -y'
+                sh 'sudo apt update'
+                sh 'sudo apt install -y apt-transport-https ca-certificates curl software-properties-common'
+                sh 'sudo apt install -y docker.io'
+                sh 'sudo apt update'
+                sh 'sudo chmod 666 /var/run/docker.sock' 
+                sh 'sudo usermod -aG docker $USER'
+                sh 'sudo systemctl status docker.service'
+                sh 'sudo systemctl start docker.service'
+            }
+        }
+
+        stage('Test create container') {
+            steps {
+                sh 'docker image ls'
+                sh 'docker ps'
+                sh 'docker stop conteneur01'  
+                sh 'docker rm conteneur01'
+                sh 'sudo docker run -d --name conteneur01 --hostname conteneur01 ubuntu/apache2'
+                sh 'docker ps'
+            }
+        }
+    }
+}
